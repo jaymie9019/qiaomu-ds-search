@@ -1,7 +1,7 @@
 interface:
   display_name: "乔木 DeepSeek 搜索"
-  short_description: "补充搜索调研与网页正文抓取，附安全 API 配置引导"
-  default_prompt: "使用 $qiaomu-ds-search 补充搜索，优先原始来源并引用真实链接。缺少 API Key 时打开官方创建页，引导用户在自己的可见终端安全配置，实测成功后继续原问题。"
+  short_description: "补充搜索、正文抓取、去重筛选与冲突追查，附安全 API 配置引导"
+  default_prompt: "使用 $qiaomu-ds-search 补充搜索，去重并过滤跑题内容，发现冲突时追查原始来源；证据不足保留分歧并引用真实链接。缺少 API Key 时打开官方创建页，引导用户在自己的可见终端安全配置，实测成功后继续原问题。"
 compatibility:
   canonical_format: "agent-skills"
   adapter_targets: ["openai", "claude", "generic", "agent-skills-compatible"]

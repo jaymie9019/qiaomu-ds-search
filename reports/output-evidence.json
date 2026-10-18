@@ -1,7 +1,7 @@
 {
   "ok": true,
   "evidence_kind": "provider_backed",
-  "checked_at": "2026-10-18T04:13:48.199246+00:00",
+  "checked_at": "2026-10-18T04:36:07.864360+00:00",
   "credential_exposure": "none; loaded from private user config in process",
   "search": {
     "query": "DeepSeek Search API site:api-docs.deepseek.com",
@@ -32,11 +32,77 @@
     "sha256": "0469ad478d25e853ffe58f685d220d1faad1cea1f05f5822be34cfbddd98f77a",
     "attempts": 1
   },
-  "unit_tests_passed": 23,
+  "unit_tests_passed": 48,
   "trigger_smoke_passed": 19,
   "limits": [
-    "One official-docs search and one page fetch; not a search quality benchmark.",
+    "One biography research regression plus original docs connectivity tests; not a general quality benchmark.",
     "Real 401/402/429 paths not forced; covered by offline unit fixtures.",
-    "No Windows/Linux human onboarding validation."
+    "No Windows/Linux human onboarding validation.",
+    "Different hosts may copy a common source; source families are not proof of independence.",
+    "1988/1989 remains unresolved; no primary evidence sufficient for a definitive year."
+  ],
+  "version": "1.1.0",
+  "research": {
+    "query": "窦唯的简历",
+    "aliases": [
+      "竇唯"
+    ],
+    "searches": [
+      {
+        "query": "窦唯的简历",
+        "purpose": "discovery",
+        "attempts": 1,
+        "result_count": 5
+      },
+      {
+        "query": "窦唯的简历 -site:baike.baidu.com -site:wapbaike.baidu.com -site:m.haiwainet.cn",
+        "purpose": "diversify",
+        "attempts": 1,
+        "result_count": 5
+      },
+      {
+        "query": "窦唯 加入黑豹乐队 时间 采访",
+        "purpose": "verify_conflict",
+        "attempts": 1,
+        "result_count": 5
+      }
+    ],
+    "quality": {
+      "input_count": 15,
+      "kept_count": 9,
+      "duplicate_count": 2,
+      "excluded_count": 4,
+      "source_family_count": 8
+    },
+    "conflicts": [
+      {
+        "event": "加入黑豹乐队",
+        "values": [
+          "1988",
+          "1989"
+        ],
+        "status": "unresolved"
+      }
+    ],
+    "facts_verified": false,
+    "sha256": "8f91db5da3354f33e2a5ee3a9287f641d7e148318a144a86fffc330e043a4047"
+  },
+  "fetch_regression": [
+    {
+      "url": "https://music.migu.cn/v3/music/artist/621/song?page=4",
+      "http_success": true,
+      "content_chars": 873,
+      "usable_for_requested_topic": false,
+      "review": "Returned home/navigation content, not the requested biography.",
+      "sha256": "0dda81b8a0f3811bce3cfcba174dc87508e9124ed1ceec5debc964057c963cdf"
+    },
+    {
+      "url": "http://phtv.ifeng.com/program/mrmdm/200812/1230_1597_947190_1.shtml",
+      "http_success": true,
+      "content_chars": 1247,
+      "usable_for_requested_topic": true,
+      "review": "Relevant interview page; 1988 is in editorial introduction, not a first-person answer.",
+      "sha256": "9e0823261eeca27547972126725094ab738821ac096ce09e285dc1a3f5e6d78a"
+    }
   ]
 }
