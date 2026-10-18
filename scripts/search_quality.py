@@ -51,11 +51,11 @@ def identity(url):
     return urlunsplit((p.scheme, netloc, path, urlencode(sorted(query, key=lambda kv: kv[0])), fragment)), host
 
 
-def profile_for(query, profile="auto", subject=None):
+def profile_for(query, profile="generic", subject=None):
     match = BIO_QUERY.fullmatch(query.strip())
     if profile == "auto":
         profile = "biography" if match else "generic"
-    if subject is None and match:
+    if subject is None and match and profile == "biography":
         subject = match[1][:-1] if match[1].endswith("的") else match[1]
     return profile, subject
 
@@ -114,7 +114,7 @@ def candidate_facts(row, subject, aliases):
     return claims
 
 
-def process_results(rows, query, subject=None, aliases=None, profile="auto", exclude_terms=None):
+def process_results(rows, query, subject=None, aliases=None, profile="generic", exclude_terms=None):
     aliases, exclude_terms = aliases or [], exclude_terms or []
     profile, subject = profile_for(query, profile, subject)
     names = [normalized(n) for n in ([subject] if subject else []) + aliases]
@@ -149,6 +149,14 @@ def process_results(rows, query, subject=None, aliases=None, profile="auto", exc
             row["source_family"] = representative["source_family"]
             duplicate = {"url": row["url"], "kept_url": representative["url"], "reason": method,
                          "changed_numbers": fp[1] != prints[match][1]}
+            # The calling model must be able to inspect changed evidence in any
+            # subject/language, including claims outside the biography adapter.
+            fields = ("title", "snippet", "summary", "content", "date", "matched_queries")
+            if any(row.get(k) != representative.get(k) for k in ("content", "summary", "snippet")):
+                duplicate["variant"] = {k: row[k] for k in fields if k in row}
+            queries = list(dict.fromkeys(representative.get("matched_queries", []) + row.get("matched_queries", [])))
+            if queries:
+                representative["matched_queries"] = queries
             duplicates.append(duplicate)
             representative.setdefault("alternates", []).append(duplicate)
         else:
@@ -175,6 +183,7 @@ def process_results(rows, query, subject=None, aliases=None, profile="auto", exc
         "input_count": len(rows), "kept_count": len(kept), "duplicate_count": len(duplicates),
         "excluded_count": len(excluded), "source_family_count": len({r["source_family"] for r in kept}),
         "profile": profile, "subject": subject, "duplicates": duplicates, "excluded": excluded,
-        "fact_check_scope": "Chinese biography year/event candidates only; manual review required for all claims and final conflict resolution",
+        "fact_check_scope": ("Chinese biography year/event candidates only; manual review required" if profile == "biography"
+                             else "Semantic relevance, coverage and factual conflicts require manual review by the calling agent"),
         "source_family_note": "Conservative URL/copy grouping; distinct hosts do not prove independent reporting."},
         "facts": facts, "conflicts": conflicts, "facts_verified": False}

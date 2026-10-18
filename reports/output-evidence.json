@@ -1,108 +1,463 @@
 {
   "ok": true,
+  "version": "1.2.0",
   "evidence_kind": "provider_backed",
-  "checked_at": "2026-10-18T04:36:07.864360+00:00",
-  "credential_exposure": "none; loaded from private user config in process",
-  "search": {
-    "query": "DeepSeek Search API site:api-docs.deepseek.com",
-    "count": 3,
-    "attempts": 1,
-    "sources": [
-      {
-        "title": "网页搜索与抓取",
-        "url": "https://api-docs.deepseek.com/zh-cn/guides/search/",
-        "date": null
-      },
-      {
-        "title": "Search & Fetch | DeepSeek API Docs",
-        "url": "https://api-docs.deepseek.com/guides/search/",
-        "date": null
-      },
-      {
-        "title": "Change Log | DeepSeek API Docs",
-        "url": "https://api-docs.deepseek.com/updates/",
-        "date": "2026-10-16T16:00:00+00:00"
-      }
-    ]
-  },
-  "fetch": {
-    "url": "https://api-docs.deepseek.com/guides/search/",
-    "title": "Search & Fetch | DeepSeek API Docs",
-    "content_chars": 10279,
-    "sha256": "0469ad478d25e853ffe58f685d220d1faad1cea1f05f5822be34cfbddd98f77a",
-    "attempts": 1
-  },
-  "unit_tests_passed": 48,
-  "trigger_smoke_passed": 19,
-  "limits": [
-    "One biography research regression plus original docs connectivity tests; not a general quality benchmark.",
-    "Real 401/402/429 paths not forced; covered by offline unit fixtures.",
-    "No Windows/Linux human onboarding validation.",
-    "Different hosts may copy a common source; source families are not proof of independence.",
-    "1988/1989 remains unresolved; no primary evidence sufficient for a definitive year."
-  ],
-  "version": "1.1.0",
-  "research": {
-    "query": "窦唯的简历",
-    "aliases": [
-      "竇唯"
-    ],
-    "searches": [
-      {
-        "query": "窦唯的简历",
-        "purpose": "discovery",
-        "attempts": 1,
-        "result_count": 5
-      },
-      {
-        "query": "窦唯的简历 -site:baike.baidu.com -site:wapbaike.baidu.com -site:m.haiwainet.cn",
-        "purpose": "diversify",
-        "attempts": 1,
-        "result_count": 5
-      },
-      {
-        "query": "窦唯 加入黑豹乐队 时间 采访",
-        "purpose": "verify_conflict",
-        "attempts": 1,
-        "result_count": 5
-      }
-    ],
-    "quality": {
-      "input_count": 15,
-      "kept_count": 9,
-      "duplicate_count": 2,
-      "excluded_count": 4,
-      "source_family_count": 8
-    },
-    "conflicts": [
-      {
-        "event": "加入黑豹乐队",
-        "values": [
-          "1988",
-          "1989"
+  "checked_at": "2026-10-18T11:24:30.303345+00:00",
+  "credential_exposure": "none; private configuration read in-process only",
+  "planning_owner": "calling_agent",
+  "extra_model_api_calls": 0,
+  "vector_database": false,
+  "unit_tests_passed": 62,
+  "trigger_smoke_passed": 22,
+  "topics": [
+    {
+      "name": "person",
+      "original_query": "窦唯的简历",
+      "gap_after_reading_round1": "首轮百科重复且含婚恋文章；补职业访谈与原始出处。",
+      "searches": [
+        {
+          "query": "窦唯的简历",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        },
+        {
+          "query": "窦唯 音乐创作 访谈 黑豹",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        }
+      ],
+      "planning": {
+        "owner": "calling_agent",
+        "automatic_query_expansion": false,
+        "planned_queries": [
+          "窦唯 音乐创作 访谈 黑豹"
         ],
-        "status": "unresolved"
-      }
-    ],
-    "facts_verified": false,
-    "sha256": "8f91db5da3354f33e2a5ee3a9287f641d7e148318a144a86fffc330e043a4047"
-  },
-  "fetch_regression": [
-    {
-      "url": "https://music.migu.cn/v3/music/artist/621/song?page=4",
-      "http_success": true,
-      "content_chars": 873,
-      "usable_for_requested_topic": false,
-      "review": "Returned home/navigation content, not the requested biography.",
-      "sha256": "0dda81b8a0f3811bce3cfcba174dc87508e9124ed1ceec5debc964057c963cdf"
+        "remaining_queries": [],
+        "stop_reason": "plan_completed"
+      },
+      "merge": {
+        "input_count": 8,
+        "kept_count": 6,
+        "duplicate_count": 2,
+        "excluded_count": 0,
+        "source_family_count": 5
+      },
+      "sources": [
+        {
+          "title": "窦唯 - 窦唯",
+          "url": "https://baike.baidu.com/item/%E7%AB%87%E5%94%AF/156394#1",
+          "matched_queries": [
+            "窦唯的简历"
+          ]
+        },
+        {
+          "title": "王菲前夫窦唯近况曝光 两人为何离婚 - 30006236,",
+          "url": "https://m.haiwainet.cn/middle/3541083/2016/0614/content_30006236_2.html#1",
+          "matched_queries": [
+            "窦唯的简历"
+          ]
+        },
+        {
+          "title": "窦唯离开黑豹的原因，不能与一只乐队长久合作的原因 - 快速注册",
+          "url": "https://www.douban.com/note/726936273/?_i=0895121JUo8h1n#1",
+          "matched_queries": [
+            "窦唯 音乐创作 访谈 黑豹"
+          ]
+        },
+        {
+          "title": "2006：窦唯，生活的压力和生命的尊严（4）",
+          "url": "http://old.lifeweek.com.cn/2011/0729/34229_4.shtml",
+          "matched_queries": [
+            "窦唯 音乐创作 访谈 黑豹"
+          ]
+        },
+        {
+          "title": "窦唯从1995年就开始不想写歌词了，为什么 - 快速注册",
+          "url": "https://www.douban.com/note/726938354/#sep#1",
+          "matched_queries": [
+            "窦唯 音乐创作 访谈 黑豹"
+          ]
+        },
+        {
+          "title": "窦唯无可替代",
+          "url": "http://ent.sina.com.cn/x/2006-06-14/05311121775.html",
+          "matched_queries": [
+            "窦唯 音乐创作 访谈 黑豹"
+          ]
+        }
+      ],
+      "facts_verified": false,
+      "raw_evidence_sha256": [
+        "f11bfd4b8f8e79ca4055460d56e67941960371c0865440c40aeba6da4ddf5dad",
+        "c8058b91fee97fb79c6358736625e22aa894747acaba39d8db40548185cebb4a",
+        "b0b64c201c034d5d55c4ba64cc6c4a2744533c256b8fdc98d3659e3f37e12633"
+      ]
     },
     {
-      "url": "http://phtv.ifeng.com/program/mrmdm/200812/1230_1597_947190_1.shtml",
-      "http_success": true,
-      "content_chars": 1247,
-      "usable_for_requested_topic": true,
-      "review": "Relevant interview page; 1988 is in editorial introduction, not a first-person answer.",
-      "sha256": "9e0823261eeca27547972126725094ab738821ac096ce09e285dc1a3f5e6d78a"
+      "name": "technical",
+      "original_query": "Python asyncio TaskGroup gather exception handling site:docs.python.org",
+      "gap_after_reading_round1": "首轮只是 API 索引且混有 dev 版翻译；需要固定 3.14 的任务异常语义。",
+      "searches": [
+        {
+          "query": "Python asyncio TaskGroup gather exception handling site:docs.python.org",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        },
+        {
+          "query": "site:docs.python.org/3.14/library/asyncio-task.html TaskGroup gather first exception",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 0
+        }
+      ],
+      "planning": {
+        "owner": "calling_agent",
+        "automatic_query_expansion": false,
+        "planned_queries": [
+          "site:docs.python.org/3.14/library/asyncio-task.html TaskGroup gather first exception"
+        ],
+        "remaining_queries": [],
+        "stop_reason": "plan_completed"
+      },
+      "merge": {
+        "input_count": 4,
+        "kept_count": 4,
+        "duplicate_count": 0,
+        "excluded_count": 0,
+        "source_family_count": 1
+      },
+      "sources": [
+        {
+          "title": "High-level API Index",
+          "url": "https://docs.python.org/3.14/library/asyncio-api-index.html",
+          "matched_queries": [
+            "Python asyncio TaskGroup gather exception handling site:docs.python.org"
+          ]
+        },
+        {
+          "title": "高层级 API 索引",
+          "url": "https://docs.python.org/zh-cn/3.14/library/asyncio-api-index.html",
+          "matched_queries": [
+            "Python asyncio TaskGroup gather exception handling site:docs.python.org"
+          ]
+        },
+        {
+          "title": "高階 API 索引",
+          "url": "https://docs.python.org/zh-tw/dev/library/asyncio-api-index.html",
+          "matched_queries": [
+            "Python asyncio TaskGroup gather exception handling site:docs.python.org"
+          ]
+        },
+        {
+          "title": "高水準の API インデックス",
+          "url": "https://docs.python.org/ja/3/library/asyncio-api-index.html",
+          "matched_queries": [
+            "Python asyncio TaskGroup gather exception handling site:docs.python.org"
+          ]
+        }
+      ],
+      "facts_verified": false,
+      "raw_evidence_sha256": [
+        "d7d3b4bc12d3aeb0b4b2de79fc0145cea3d7b64b4af4ce9cc7ffee65ba885c12",
+        "b99bd1abac437eb8f011dc7b907d5251f8e356f353782878574669acfec8c301",
+        "b4d5de9ecf9fc81f6d4f6b25d75fe874ace88c9e5d7df00980ac2ff1061a8c86"
+      ]
+    },
+    {
+      "name": "concept",
+      "original_query": "城市热岛效应是什么",
+      "gap_after_reading_round1": "首轮有定义，但混有历史统计；补成因和地表/空气测量口径。",
+      "searches": [
+        {
+          "query": "城市热岛效应是什么",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        },
+        {
+          "query": "site:epa.gov/heatislands heat island causes surface air temperatures",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        }
+      ],
+      "planning": {
+        "owner": "calling_agent",
+        "automatic_query_expansion": false,
+        "planned_queries": [
+          "site:epa.gov/heatislands heat island causes surface air temperatures"
+        ],
+        "remaining_queries": [],
+        "stop_reason": "plan_completed"
+      },
+      "merge": {
+        "input_count": 8,
+        "kept_count": 8,
+        "duplicate_count": 0,
+        "excluded_count": 0,
+        "source_family_count": 5
+      },
+      "sources": [
+        {
+          "title": "让你的城市“降降温” 可以这么做",
+          "url": "https://www.kepuchina.cn/yc/201712/t20171218_341085.shtml",
+          "matched_queries": [
+            "城市热岛效应是什么"
+          ]
+        },
+        {
+          "title": "热岛效应（一个地区的气温高于周围地区的现象） - 版权归原作者所有，如有侵权，请联系我们",
+          "url": "https://www.kepuchina.cn/article/articleinfo?business_type=100&classify=0&ar_id=703212#1",
+          "matched_queries": [
+            "城市热岛效应是什么"
+          ]
+        },
+        {
+          "title": "热岛效应 - 图文",
+          "url": "https://cloud.kepuchina.cn/newSearch/imgText?id=7163950609638432768#1",
+          "matched_queries": [
+            "城市热岛效应是什么"
+          ]
+        },
+        {
+          "title": "中国科普博览＿大气科学馆 - 中国科学院科普云平台",
+          "url": "http://www.kepu.net.cn/gb//earth/weather/pollution/plt017.html#1",
+          "matched_queries": [
+            "城市热岛效应是什么"
+          ]
+        },
+        {
+          "title": "What Are Heat Islands? | US EPA",
+          "url": "https://www.epa.gov/heatislands/what-are-heat-islands?itid=lk_inline_enhanced-template",
+          "matched_queries": [
+            "site:epa.gov/heatislands heat island causes surface air temperatures"
+          ]
+        },
+        {
+          "title": "Learn About Heat Islands | US EPA",
+          "url": "https://19january2021snapshot.epa.gov/heatislands/learn-about-heat-islands_.html",
+          "matched_queries": [
+            "site:epa.gov/heatislands heat island causes surface air temperatures"
+          ]
+        },
+        {
+          "title": "Heat Island Compendium | US EPA",
+          "url": "https://19january2021snapshot.epa.gov/heatislands/heat-island-compendium_.html",
+          "matched_queries": [
+            "site:epa.gov/heatislands heat island causes surface air temperatures"
+          ]
+        },
+        {
+          "title": "Learn About Heat Island Effects | US EPA",
+          "url": "https://www.epa.gov/heatislands/learn-about-heat-island-effects?vcrmeid=epQ79CWW0qKuby3nHlY4Q&vcrmiid=4FG8yB4AoEqgHDoaIHqfZQ",
+          "matched_queries": [
+            "site:epa.gov/heatislands heat island causes surface air temperatures"
+          ]
+        }
+      ],
+      "facts_verified": false,
+      "raw_evidence_sha256": [
+        "7f3ef67975ed585fa92a3ac02b8cf364a6e5b1a1aeed46f6d70503f61097931c",
+        "a49ca4f7fc52f5d2e287ac5d6c5e82d854bd1e46da8114913addca3ea98a3d5f",
+        "04511490f074cd7dbcd7299e769b88f9c4b92f38b7504040f9219af29de2b744"
+      ]
+    },
+    {
+      "name": "comparison",
+      "original_query": "SQLite PostgreSQL use cases official documentation",
+      "gap_after_reading_round1": "首轮主要是第三方产品自己的部署建议，不能推广成数据库通用边界；回两方原始文档。",
+      "searches": [
+        {
+          "query": "SQLite PostgreSQL use cases official documentation",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        },
+        {
+          "query": "site:sqlite.org whentouse appropriate uses client server concurrency",
+          "purpose": "original",
+          "attempts": 1,
+          "result_count": 4
+        },
+        {
+          "query": "site:postgresql.org/docs tutorial architecture client server",
+          "purpose": "agent_expansion",
+          "attempts": 1,
+          "result_count": 3
+        }
+      ],
+      "planning": {
+        "owner": "calling_agent",
+        "automatic_query_expansion": false,
+        "planned_queries": [
+          "site:sqlite.org whentouse appropriate uses client server concurrency",
+          "site:postgresql.org/docs tutorial architecture client server"
+        ],
+        "remaining_queries": [],
+        "stop_reason": "plan_completed"
+      },
+      "merge": {
+        "input_count": 11,
+        "kept_count": 11,
+        "duplicate_count": 0,
+        "excluded_count": 0,
+        "source_family_count": 7
+      },
+      "sources": [
+        {
+          "title": "Label Studio Documentation — Database Storage Setup",
+          "url": "https://labelstud.io/guide/storedata",
+          "matched_queries": [
+            "SQLite PostgreSQL use cases official documentation"
+          ]
+        },
+        {
+          "title": "",
+          "url": "https://docs.prefect.io/v3/concepts/server.md",
+          "matched_queries": [
+            "SQLite PostgreSQL use cases official documentation"
+          ]
+        },
+        {
+          "title": "",
+          "url": "https://docs.posit.co/connect/admin/database/migration/index.llms.md",
+          "matched_queries": [
+            "SQLite PostgreSQL use cases official documentation"
+          ]
+        },
+        {
+          "title": "Choose a database",
+          "url": "https://docs.emdashcms.com/deployment/database/",
+          "matched_queries": [
+            "SQLite PostgreSQL use cases official documentation"
+          ]
+        },
+        {
+          "title": "SQLite Forum",
+          "url": "https://www2.sqlite.org/forum/forumpost/282bf433d55dfb7c?raw",
+          "matched_queries": [
+            "site:sqlite.org whentouse appropriate uses client server concurrency"
+          ]
+        },
+        {
+          "title": "SQLite Forum: Help avoiding ’database is locked’ errors in transactions",
+          "url": "https://www2.sqlite.org/forum/forumpost/69d84635d3?t=c&unf&hist",
+          "matched_queries": [
+            "site:sqlite.org whentouse appropriate uses client server concurrency"
+          ]
+        },
+        {
+          "title": "SQLite User Forum: To read file simultaneously",
+          "url": "https://sqlite.org/forum/forumpost/c9d07dd325?t=c&unf",
+          "matched_queries": [
+            "site:sqlite.org whentouse appropriate uses client server concurrency"
+          ]
+        },
+        {
+          "title": "SQLite User Forum: Misleading characterization ”writers queue up”",
+          "url": "https://sqlite.org/forum/forumpost/8d7d253df1b9811b?t=c&unf",
+          "matched_queries": [
+            "site:sqlite.org whentouse appropriate uses client server concurrency"
+          ]
+        },
+        {
+          "title": "1.2. Architectural Fundamentals",
+          "url": "https://www.postgresql.org/docs/15/tutorial-arch.html",
+          "matched_queries": [
+            "site:postgresql.org/docs tutorial architecture client server"
+          ]
+        },
+        {
+          "title": "Architectural Fundamentals",
+          "url": "https://www.postgresql.org/docs/9.0/tutorial-arch.html",
+          "matched_queries": [
+            "site:postgresql.org/docs tutorial architecture client server"
+          ]
+        },
+        {
+          "title": "Architecture",
+          "url": "https://www.postgresql.org/docs/6.5/arch-pg.html",
+          "matched_queries": [
+            "site:postgresql.org/docs tutorial architecture client server"
+          ]
+        }
+      ],
+      "facts_verified": false,
+      "raw_evidence_sha256": [
+        "e173866aa172235d1bc0a0fd1a0af5cde79028027870d4c6227d83ff0112dc2f",
+        "b0e13eb567556409ef51668a8bd01b0ccbf4ff281abd98ccb28fa8c94f982dbe",
+        "68155d98adab782990d61291384d82167c71459918c9bd227fae77b6ca872708"
+      ]
     }
+  ],
+  "fetch_runs": [
+    {
+      "fixture": "comparison-postgres-fetch",
+      "url": "https://www.postgresql.org/docs/15/tutorial-arch.html",
+      "ok": true,
+      "title": "1.2. Architectural Fundamentals",
+      "content_chars": 2150,
+      "content_sha256": "84f871fdf48d0c0c8459c272e3f17ed39b652e4b5ca11be03cb2cef961dbea85",
+      "error": null
+    },
+    {
+      "fixture": "comparison-sqlite-fetch",
+      "url": "https://www.sqlite.org/whentouse.html",
+      "ok": true,
+      "title": "2. Situations Where A Client/Server RDBMS May Work Better",
+      "content_chars": 15301,
+      "content_sha256": "2d4199e2e77fb1c01f38f91343b20f17f3e59394499ad03906098d55a81f35cc",
+      "error": null
+    },
+    {
+      "fixture": "concept-fetch",
+      "url": "https://www.epa.gov/heatislands/what-are-heat-islands?itid=lk_inline_enhanced-template",
+      "ok": true,
+      "title": "What Are Heat Islands? | US EPA",
+      "content_chars": 8233,
+      "content_sha256": "67cea76ede32afaba37d2c2d87734261ac4eefe2cc56599a1f84c0ac958cdaf5",
+      "error": null
+    },
+    {
+      "fixture": "person-alternative-fetch",
+      "url": "http://ent.sina.com.cn/x/2006-06-14/05311121775.html",
+      "ok": true,
+      "title": "窦唯无可替代",
+      "content_chars": 414,
+      "content_sha256": "8481df7b89939540d9ad30f539f5b46ef8db4c32db77ad8450c10a9e469e4649",
+      "error": null
+    },
+    {
+      "fixture": "person-fetch",
+      "url": "http://old.lifeweek.com.cn/2011/0729/34229_4.shtml",
+      "ok": false,
+      "title": null,
+      "content_chars": 0,
+      "content_sha256": null,
+      "error": {
+        "code": "http_error",
+        "status": 404,
+        "message": "Fetch 未取得可用正文；页面可能不可用、受站点限制或无可提取内容。"
+      }
+    },
+    {
+      "fixture": "technical-fetch",
+      "url": "https://docs.python.org/3.14/library/asyncio-task.html",
+      "ok": true,
+      "title": "Coroutines and tasks",
+      "content_chars": 46724,
+      "content_sha256": "0d6bf5d9709ef3c7fd2cc5426ed5d2d47af887bce458c70c7460e1f035d22a19",
+      "error": null
+    }
+  ],
+  "limits": [
+    "One supervised run across four topics, not a general model/search quality benchmark.",
+    "Nine searches include one empty result; six fetches include one HTTP 404.",
+    "Semantic relevance, claim resolution and task-wide budgets belong to the calling agent.",
+    "Scenario rubric is not an automated model-accuracy evaluation.",
+    "No Windows/Linux human onboarding revalidation."
   ]
 }

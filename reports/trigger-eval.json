@@ -8,8 +8,8 @@
   ],
   "missing_description_concepts": [],
   "summary": {
-    "total": 19,
-    "passed": 19,
+    "total": 22,
+    "passed": 22,
     "false_positive": 0,
     "false_negative": 0,
     "pass_rate": 1.0
@@ -161,6 +161,47 @@
         "matched_concepts": [
           "action",
           "evidence",
+          "provider"
+        ],
+        "negative_pattern": null
+      },
+      {
+        "prompt": "用 DeepSeek 搜索这个陌生概念，并展开相关问题补充调研",
+        "family": "default",
+        "expected_trigger": true,
+        "predicted_trigger": true,
+        "passed": true,
+        "score": 1.0,
+        "matched_concepts": [
+          "action",
+          "evidence",
+          "provider"
+        ],
+        "negative_pattern": null
+      },
+      {
+        "prompt": "用 DS 搜索比较两种方案，核实来源",
+        "family": "default",
+        "expected_trigger": true,
+        "predicted_trigger": true,
+        "passed": true,
+        "score": 1.0,
+        "matched_concepts": [
+          "action",
+          "evidence",
+          "provider"
+        ],
+        "negative_pattern": null
+      },
+      {
+        "prompt": "用 qiaomu-ds-search 搜索这个错误的原因和官方解决办法",
+        "family": "default",
+        "expected_trigger": true,
+        "predicted_trigger": true,
+        "passed": true,
+        "score": 0.667,
+        "matched_concepts": [
+          "action",
           "provider"
         ],
         "negative_pattern": null
