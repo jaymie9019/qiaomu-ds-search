@@ -24,3 +24,11 @@
 ## 证据边界
 
 设计优势：相比已阅读的候选，此包明确提供 DeepSeek 官方直连与首次配置完成状态。经过测试的优势只限于 tests、trigger-eval 和实际 provider/安装证据。没有横向检索质量基准、用户满意度或平台覆盖率数据，不能声称更准确或全平台已实测。
+
+## v1.1.0 质量改进研究
+
+2026-10-18 再用内置 runner 查询 `search deduplication source verification` 与 `research conflicting evidence fact check`，两个目录均成功，去重为 21 个候选家族。实际读取 [mattpocock/skills research](https://github.com/mattpocock/skills/blob/main/skills/engineering/research/SKILL.md) 及 MIT LICENSE；本次没有安装或执行候选代码。目录快照显示 skills.sh 677.4K 安装、SkillsMP 仓库 292,968 stars，两者分别记录，不是质量评分；目录更新时间为 2026-08-19，不当作当前仓库提交时间。
+
+keep：逐论断追溯到拥有事实的第一手来源。adapt：在三次 Search 预算内记录中性冲突查询，把未解决状态暴露给 Agent。reject：该参考要求后台代理，但本工具是轻量补充搜索，不引入后台任务；目录里大量抓站/销售名单工具与本需求无关，未采用。invent：可审计 URL/内容去重、保护相互矛盾的重复版本、意图限定的人物过滤、无真伪裁决的候选年份检测。
+
+通用原则：同一证据不能重复计票，相关性先于来源分数，冲突不能被去重掩盖。人物年份提取是可选适配器，窦唯仅为回归夹具；另测虚构音乐人、一般文档、不同参数 URL、否定句、其他人物和英文数值范围。没有声称规则具备通用语义事实核查能力。

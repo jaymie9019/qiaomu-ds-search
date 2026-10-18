@@ -18,6 +18,10 @@ import urllib.parse
 import urllib.request
 import webbrowser
 
+# Also support embedding/importlib callers outside this script's directory.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from search_quality import process_results, identity
+
 API_BASE = "https://api.deepseek.com/v1/tools"
 KEYS_URL = "https://platform.deepseek.com/api_keys"
 DOCS_URL = "https://api-docs.deepseek.com/guides/search/"
@@ -144,7 +148,7 @@ def request_api(operation, payload, key, timeout=30, retries=2, opener=None, sle
         API_BASE + "/" + operation,
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Authorization": "Bearer " + validate_key(key), "Content-Type": "application/json",
-                 "User-Agent": "qiaomu-ds-search/1.0.0"}, method="POST")
+                 "User-Agent": "qiaomu-ds-search/1.1.0"}, method="POST")
     for attempt in range(retries + 1):
         delay = min(2 ** attempt + random.random(), 10)
         try:
@@ -213,6 +217,65 @@ def doctor(key, source, timeout=30):
             "attempts": attempts, "message": "搜索实测成功。" if nonempty else "接口已响应，但结果为空；尚未验证有效搜索结果。"}
 
 
+def followup_query(base, rows):
+    """Exclude seen hosts within the API's limit, without truncating the question."""
+    hosts = []
+    for row in rows:
+        if identity(row.get("url", "")):
+            host = urllib.parse.urlsplit(row["url"]).hostname
+            if host not in hosts and all(c.isalnum() or c in ".-" for c in host):
+                hosts.append(host)
+    query = base
+    for host in hosts:
+        token = " -site:" + host
+        if token.strip() not in query and len(query + token) <= 128:
+            query += token
+    return query if len(query) <= 128 else None
+
+
+def research(query, key, count=5, max_searches=3, timeout=30, retries=2, **quality_options):
+    """Bounded discovery/diversification/conflict search; no automated truth verdict."""
+    payload = search_payload(query, count, True)
+    if type(max_searches) is not int or not 1 <= max_searches <= 3:
+        raise SearchError("max-searches 必须为 1–3。", "invalid_input")
+    rows, searches, errors, verified_queries = [], [], [], set()
+    next_query, purpose, result = query, "discovery", None
+    for _ in range(max_searches):
+        current = search_payload(next_query, count, True)
+        try:
+            response, attempts = request_api("search", current, key, timeout, retries)
+        except SearchError as exc:
+            if not searches:
+                raise
+            errors.append({"query": next_query, "purpose": purpose, "code": exc.code,
+                           "message": str(exc), "http_status": exc.status})
+            break
+        searches.append({"query": next_query, "purpose": purpose, "attempts": attempts,
+                         "result_count": len(response["results"])})
+        rows.extend(response["results"])
+        result = process_results(rows, query, **quality_options)
+        if purpose == "verify_conflict":
+            verified_queries.add(next_query)
+        conflict = next((c for c in result["conflicts"]
+                         if c["verification_query"] not in verified_queries), None)
+        if conflict:
+            next_query, purpose = conflict["verification_query"], "verify_conflict"
+            if len(next_query) > 128:
+                break
+        elif result["quality"]["source_family_count"] < 3:
+            next_query, purpose = followup_query(query, rows), "diversify"
+        else:
+            break
+        if not next_query or next_query in {s["query"] for s in searches}:
+            break
+    result = {**envelope("search", payload, result, sum(s["attempts"] for s in searches)),
+              "operation": "research", "ok": not errors, "complete": not errors,
+              "searches": searches, "errors": errors,
+              "verification": {"performed_queries": sorted(verified_queries),
+                               "final_resolution": "manual_review_required"}}
+    return result
+
+
 def setup(no_browser=False, guide_only=False):
     print(f"1. 打开 DeepSeek 官方 API Keys 页面：{KEYS_URL}")
     print("2. 登录/注册，进入 API keys，选择创建新密钥，名称可填 qiaomu-ds-search。")
@@ -263,9 +326,19 @@ def parser():
     search.add_argument("--need-content", action="store_true")
     search.add_argument("--ori-question")
     search.add_argument("--localization", help="可选 IP 地址；不会自动采集用户 IP")
+    search.add_argument("--raw", action="store_true", help="跳过去重与筛选，返回原始 API 结果")
+    investigate = sub.add_parser("research", help="最多三次搜索：筛选、补充来源、检索冲突证据")
+    investigate.add_argument("query")
+    investigate.add_argument("--count", type=int, default=5)
+    investigate.add_argument("--max-searches", type=int, choices=range(1, 4), default=3)
+    for cmd in (search, investigate):
+        cmd.add_argument("--profile", choices=("auto", "generic", "biography"), default="auto")
+        cmd.add_argument("--subject", help="限定主体；简单人物简历查询可自动识别")
+        cmd.add_argument("--alias", action="append", default=[], help="主体别名，可重复")
+        cmd.add_argument("--exclude-term", action="append", default=[], help="排除含此词的结果，可重复")
     fetch = sub.add_parser("fetch", help="抓取指定 URL 的 Markdown 正文")
     fetch.add_argument("url")
-    for cmd in (search, fetch):
+    for cmd in (search, fetch, investigate):
         cmd.add_argument("--timeout", type=int, choices=range(1, 121), metavar="1..120", default=30)
         cmd.add_argument("--retries", type=int, choices=range(3), default=2)
     return root
@@ -278,16 +351,28 @@ def main(argv=None):
             return setup(args.no_browser, args.guide_only)
         if args.command == "search":
             payload = search_payload(args.query, args.count, args.need_content, args.ori_question, args.localization)
+        elif args.command == "research":
+            payload = search_payload(args.query, args.count, True)
         elif args.command == "fetch":
             payload = fetch_payload(args.url)
+        if args.command in ("search", "research"):
+            for value in ([args.subject] if args.subject is not None else []) + args.alias + args.exclude_term:
+                validate_text(value, "subject/alias/exclude-term")
+            quality_options = {"profile": args.profile, "subject": args.subject,
+                               "aliases": args.alias, "exclude_terms": args.exclude_term}
         key, source = load_key()
         if args.command == "status":
             result = {"ok": True, "configured": True, "credential_source": source, "search_verified": False,
                       "message": "配置存在；运行 doctor 才能验证真实搜索。"}
         elif args.command == "doctor":
             result = doctor(key, source)
+        elif args.command == "research":
+            result = research(args.query, key, args.count, args.max_searches, args.timeout, args.retries,
+                              **quality_options)
         else:
             response, attempts = request_api(args.command, payload, key, args.timeout, args.retries)
+            if args.command == "search" and not args.raw:
+                response = {**response, **process_results(response["results"], args.query, **quality_options)}
             result = envelope(args.command, payload, response, attempts)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         return 0 if result["ok"] else 4
