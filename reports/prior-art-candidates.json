@@ -1,0 +1,59 @@
+{
+  "researched_at": "2026-10-18",
+  "queries": [
+    "deepseek web search",
+    "web research source citations"
+  ],
+  "candidate_family_count": 41,
+  "catalogs_complete": true,
+  "metric_semantics": {
+    "skills_sh_installs": "ecosystem install telemetry; not ratings or correctness",
+    "skillsmp_repo_stars": "GitHub repository stars; not installs, ratings, or skill-specific quality",
+    "cross_catalog_score": "not calculated; metrics remain separate"
+  },
+  "selected": [
+    {
+      "family_key": "tavily-ai/skills:research",
+      "queries": [
+        "web research source citations"
+      ],
+      "skills_sh": {
+        "source": "skills.sh",
+        "query": "web research source citations",
+        "owner_repo": "tavily-ai/skills",
+        "skill_name": "research",
+        "family_key": "tavily-ai/skills:research",
+        "skills_sh_installs": 6500,
+        "skills_sh_installs_display": "6.5K",
+        "skills_sh_url": "https://skills.sh/tavily-ai/skills/research"
+      },
+      "skillsmp": null,
+      "catalogs": [
+        "skills.sh"
+      ],
+      "requires_source_review": true
+    },
+    {
+      "family_key": "redfox-data/redfox-community:deepseek-websearch",
+      "queries": [
+        "deepseek web search"
+      ],
+      "skills_sh": {
+        "source": "skills.sh",
+        "query": "deepseek web search",
+        "owner_repo": "redfox-data/redfox-community",
+        "skill_name": "deepseek-websearch",
+        "family_key": "redfox-data/redfox-community:deepseek-websearch",
+        "skills_sh_installs": 101,
+        "skills_sh_installs_display": "101",
+        "skills_sh_url": "https://skills.sh/redfox-data/redfox-community/deepseek-websearch"
+      },
+      "skillsmp": null,
+      "catalogs": [
+        "skills.sh"
+      ],
+      "requires_source_review": true
+    }
+  ],
+  "missing_evidence": []
+}

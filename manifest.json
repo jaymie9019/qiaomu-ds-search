@@ -1,0 +1,19 @@
+{
+  "name": "qiaomu-ds-search",
+  "version": "1.0.0",
+  "owner": "向阳乔木",
+  "updated_at": "2026-10-18",
+  "status": "active",
+  "maturity_tier": "governed",
+  "lifecycle_stage": "production",
+  "context_budget_tier": "production",
+  "review_cadence": "quarterly and on API changes",
+  "target_platforms": ["openai", "claude", "generic", "agent-skills-compatible"],
+  "release_gates": ["package", "trigger-smoke", "unit-tests", "secret-scan", "live-evidence-or-explicit-missing", "clean-install"],
+  "intent": {
+    "job_to_be_done": "通过 DeepSeek Search/Fetch 补充研究证据，并引导无 Key 用户完成配置",
+    "inputs": ["短查询", "公开网页 URL", "用户自己输入的 API Key"],
+    "outputs": ["带来源与时间的 JSON", "中文证据摘要", "明确配置与联网验证状态"],
+    "exclusions": ["聊天模型调用", "付费墙绕过", "全站爬虫", "代用户充值"]
+  }
+}
