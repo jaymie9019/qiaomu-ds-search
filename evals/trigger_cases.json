@@ -1,0 +1,68 @@
+{
+  "recommended_threshold": 0.34,
+  "description_required_concepts": [
+    "provider",
+    "action",
+    "evidence"
+  ],
+  "positive_concepts": {
+    "provider": [
+      "DeepSeek",
+      "DS",
+      "qiaomu-ds-search"
+    ],
+    "action": [
+      "搜索",
+      "抓取",
+      "配置",
+      "search",
+      "fetch",
+      "setup",
+      "再找",
+      "核实"
+    ],
+    "evidence": [
+      "来源",
+      "补充",
+      "调研",
+      "source",
+      "research",
+      "网页",
+      "API Key"
+    ]
+  },
+  "negative_patterns": [
+    "不要联网",
+    "聊天模型",
+    "本地文件",
+    "纯离线",
+    "翻译这段",
+    "全站爬取",
+    "绕过登录"
+  ],
+  "should_trigger": [
+    "用 DeepSeek 搜索最近的模型动态",
+    "DS 搜索 API 定价",
+    "用 DeepSeek 抓取这个网页",
+    "补充搜索几个官方来源",
+    "再找几个来源核实结论",
+    "用 DeepSeek 搜索反例，补充调研",
+    "配置 qiaomu-ds-search API Key",
+    "我没有 API Key，带我配置 DeepSeek 搜索",
+    "Use DeepSeek search for current sources",
+    "Fetch this public page with DeepSeek",
+    "Supplement research with a DeepSeek search"
+  ],
+  "should_not_trigger": [
+    "不要联网，用已有材料回答",
+    "翻译这段英文",
+    "本地文件搜索",
+    "调用 DeepSeek 聊天模型"
+  ],
+  "near_neighbor": [
+    "解释一下 DeepSeek 是什么",
+    "帮我配置 Python",
+    "对网站全站爬取",
+    "用 DeepSeek 绕过登录读取文章"
+  ]
+}

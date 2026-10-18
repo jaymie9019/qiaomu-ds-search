@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "evidence_kind": "provider_backed",
+  "checked_at": "2026-10-18T04:13:48.199246+00:00",
+  "credential_exposure": "none; loaded from private user config in process",
+  "search": {
+    "query": "DeepSeek Search API site:api-docs.deepseek.com",
+    "count": 3,
+    "attempts": 1,
+    "sources": [
+      {
+        "title": "网页搜索与抓取",
+        "url": "https://api-docs.deepseek.com/zh-cn/guides/search/",
+        "date": null
+      },
+      {
+        "title": "Search & Fetch | DeepSeek API Docs",
+        "url": "https://api-docs.deepseek.com/guides/search/",
+        "date": null
+      },
+      {
+        "title": "Change Log | DeepSeek API Docs",
+        "url": "https://api-docs.deepseek.com/updates/",
+        "date": "2026-10-16T16:00:00+00:00"
+      }
+    ]
+  },
+  "fetch": {
+    "url": "https://api-docs.deepseek.com/guides/search/",
+    "title": "Search & Fetch | DeepSeek API Docs",
+    "content_chars": 10279,
+    "sha256": "0469ad478d25e853ffe58f685d220d1faad1cea1f05f5822be34cfbddd98f77a",
+    "attempts": 1
+  },
+  "unit_tests_passed": 23,
+  "trigger_smoke_passed": 19,
+  "limits": [
+    "One official-docs search and one page fetch; not a search quality benchmark.",
+    "Real 401/402/429 paths not forced; covered by offline unit fixtures.",
+    "No Windows/Linux human onboarding validation."
+  ]
+}
