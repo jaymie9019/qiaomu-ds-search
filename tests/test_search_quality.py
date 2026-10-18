@@ -16,6 +16,7 @@ def row(url, title, text, authority=3):
 
 class QualityTests(unittest.TestCase):
     def review(self, rows, query="窦唯的简历", **kwargs):
+        kwargs.setdefault("profile", "auto")
         return ds.process_results(rows, query, **kwargs)
 
     def test_observed_duplicate_and_gossip_failure(self):
@@ -148,29 +149,27 @@ class QualityTests(unittest.TestCase):
 
 
 class ResearchTests(unittest.TestCase):
-    def test_research_diversifies_then_checks_conflict_within_budget(self):
+    def test_explicit_biography_adapter_retains_conflicts_without_resolving(self):
         a = row('https://a.example/a', '窦唯', '1988年，窦唯加入黑豹乐队。')
         b = row('https://b.example/b', '窦唯', '1989年，窦唯加入黑豹乐队。')
         with patch.object(ds, 'request_api', side_effect=[({'results':[a]},1), ({'results':[b]},1), ({'results':[a]},1)]) as call:
-            out = ds.research('窦唯的简历', 'unit-test-key')
+            out = ds.research('窦唯的简历', 'unit-test-key', profile='biography',
+                              queries=['窦唯主要经历', '窦唯加入黑豹乐队时间采访'])
         self.assertEqual(call.call_count, 3)
-        self.assertEqual([s['purpose'] for s in out['searches']], ['discovery','diversify','verify_conflict'])
-        self.assertIn('-site:a.example', call.call_args_list[1].args[1]['query'])
-        self.assertNotIn('1988', call.call_args_list[2].args[1]['query'])
-        self.assertNotIn('1989', call.call_args_list[2].args[1]['query'])
         self.assertEqual(out['conflicts'][0]['status'], 'unresolved')
+        self.assertFalse(out['facts_verified'])
         self.assertTrue(out['complete'])
 
     def test_partial_failure_keeps_evidence_and_reports_incomplete(self):
         a = row('https://a.example/a','窦唯','音乐生涯')
         with patch.object(ds,'request_api',side_effect=[({'results':[a]},1),ds.SearchError('network','network_error')]):
-            out = ds.research('窦唯的简历', 'unit-test-key')
+            out = ds.research('窦唯的简历', 'unit-test-key', queries=['窦唯作品'])
         self.assertFalse(out['ok'])
         self.assertFalse(out['complete'])
         self.assertEqual(len(out['results']),1)
         self.assertEqual(out['errors'][0]['code'],'network_error')
 
-    def test_stops_when_sources_are_sufficient_or_budget_is_one(self):
+    def test_executes_single_query_when_only_one_was_supplied(self):
         rows = [row(f'https://{n}.example/a','doc',str(n)) for n in range(3)]
         with patch.object(ds,'request_api',return_value=({'results':rows},1)) as call:
             ds.research('docs','unit-test-key')
@@ -188,7 +187,7 @@ class ResearchTests(unittest.TestCase):
 
     def test_invalid_options_do_not_send_paid_requests(self):
         with patch.object(ds,'request_api') as call:
-            for limit in (0, 4, True):
+            for limit in (0, 9, True):
                 with self.assertRaises(ds.SearchError):
                     ds.research('docs','unit-test-key',max_searches=limit)
         call.assert_not_called()

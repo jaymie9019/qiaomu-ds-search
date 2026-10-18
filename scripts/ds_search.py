@@ -20,7 +20,7 @@ import webbrowser
 
 # Also support embedding/importlib callers outside this script's directory.
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from search_quality import process_results, identity
+from search_quality import process_results
 
 API_BASE = "https://api.deepseek.com/v1/tools"
 KEYS_URL = "https://platform.deepseek.com/api_keys"
@@ -148,7 +148,7 @@ def request_api(operation, payload, key, timeout=30, retries=2, opener=None, sle
         API_BASE + "/" + operation,
         data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
         headers={"Authorization": "Bearer " + validate_key(key), "Content-Type": "application/json",
-                 "User-Agent": "qiaomu-ds-search/1.1.0"}, method="POST")
+                 "User-Agent": "qiaomu-ds-search/1.2.0"}, method="POST")
     for attempt in range(retries + 1):
         delay = min(2 ** attempt + random.random(), 10)
         try:
@@ -194,6 +194,10 @@ def validate_response(operation, result):
             valid = all(isinstance(r, dict) and all(isinstance(r.get(k), str)
                         for k in ("title", "url", "snippet", "summary", "content"))
                         for r in result["results"])
+        if valid:
+            valid = all("matched_queries" not in r or (isinstance(r["matched_queries"], list)
+                        and all(isinstance(q, str) for q in r["matched_queries"]))
+                        for r in result["results"])
     else:
         valid = valid and isinstance(result.get("title"), str) and isinstance(result.get("content"), str)
     if not valid:
@@ -217,63 +221,94 @@ def doctor(key, source, timeout=30):
             "attempts": attempts, "message": "搜索实测成功。" if nonempty else "接口已响应，但结果为空；尚未验证有效搜索结果。"}
 
 
-def followup_query(base, rows):
-    """Exclude seen hosts within the API's limit, without truncating the question."""
-    hosts = []
-    for row in rows:
-        if identity(row.get("url", "")):
-            host = urllib.parse.urlsplit(row["url"]).hostname
-            if host not in hosts and all(c.isalnum() or c in ".-" for c in host):
-                hosts.append(host)
-    query = base
-    for host in hosts:
-        token = " -site:" + host
-        if token.strip() not in query and len(query + token) <= 128:
-            query += token
-    return query if len(query) <= 128 else None
+def research_plan(query, queries=None, max_searches=8):
+    if type(max_searches) is not int or not 1 <= max_searches <= 8:
+        raise SearchError("max-searches 必须为 1–8。", "invalid_input")
+    if queries is not None and (not isinstance(queries, (list, tuple)) or
+                                not all(isinstance(q, str) for q in queries)):
+        raise SearchError("queries 必须为字符串列表。", "invalid_input")
+    plan = []
+    for value in [query] + list(queries or []):
+        value = validate_text(value, "query").strip()
+        if value not in plan:
+            plan.append(value)
+    if len(plan) > max_searches:
+        raise SearchError("查询计划超过本轮预算；请减少查询或明确调整 max-searches。", "budget_exceeded")
+    return plan
 
 
-def research(query, key, count=5, max_searches=3, timeout=30, retries=2, **quality_options):
-    """Bounded discovery/diversification/conflict search; no automated truth verdict."""
-    payload = search_payload(query, count, True)
-    if type(max_searches) is not int or not 1 <= max_searches <= 3:
-        raise SearchError("max-searches 必须为 1–3。", "invalid_input")
-    rows, searches, errors, verified_queries = [], [], [], set()
-    next_query, purpose, result = query, "discovery", None
-    for _ in range(max_searches):
-        current = search_payload(next_query, count, True)
+def research(query, key, count=5, max_searches=8, timeout=30, retries=2, queries=None, **quality_options):
+    """Execute only the caller's plan; semantic planning stays with the agent."""
+    plan = research_plan(query, queries, max_searches)
+    payload = search_payload(plan[0], count, True)
+    rows, searches, errors = [], [], []
+    for index, current_query in enumerate(plan):
+        current = search_payload(current_query, count, True)
+        purpose = "original" if index == 0 else "agent_expansion"
         try:
             response, attempts = request_api("search", current, key, timeout, retries)
         except SearchError as exc:
             if not searches:
                 raise
-            errors.append({"query": next_query, "purpose": purpose, "code": exc.code,
+            errors.append({"query": current_query, "purpose": purpose, "code": exc.code,
                            "message": str(exc), "http_status": exc.status})
             break
-        searches.append({"query": next_query, "purpose": purpose, "attempts": attempts,
+        searches.append({"query": current_query, "purpose": purpose, "attempts": attempts,
                          "result_count": len(response["results"])})
-        rows.extend(response["results"])
-        result = process_results(rows, query, **quality_options)
-        if purpose == "verify_conflict":
-            verified_queries.add(next_query)
-        conflict = next((c for c in result["conflicts"]
-                         if c["verification_query"] not in verified_queries), None)
-        if conflict:
-            next_query, purpose = conflict["verification_query"], "verify_conflict"
-            if len(next_query) > 128:
-                break
-        elif result["quality"]["source_family_count"] < 3:
-            next_query, purpose = followup_query(query, rows), "diversify"
-        else:
-            break
-        if not next_query or next_query in {s["query"] for s in searches}:
-            break
-    result = {**envelope("search", payload, result, sum(s["attempts"] for s in searches)),
-              "operation": "research", "ok": not errors, "complete": not errors,
-              "searches": searches, "errors": errors,
-              "verification": {"performed_queries": sorted(verified_queries),
-                               "final_resolution": "manual_review_required"}}
-    return result
+        rows.extend({**r, "matched_queries": [current_query]} for r in response["results"])
+    reviewed = process_results(rows, query, **quality_options)
+    used = len(searches) + len(errors)
+    return {**envelope("search", payload, reviewed, sum(s["attempts"] for s in searches)),
+            "operation": "research", "ok": not errors, "complete": not errors,
+            "searches": searches, "errors": errors,
+            "planning": {"owner": "calling_agent", "automatic_query_expansion": False,
+                         "planned_queries": plan, "remaining_queries": plan[len(searches):],
+                         "stop_reason": "request_failed" if errors else "plan_completed"},
+            "budget": {"scope": "this_batch", "limit": max_searches, "used": used,
+                       "remaining": max_searches-used, "retries_per_request": retries},
+            "verification": {"final_resolution": "manual_review_required"}}
+
+
+def merge_outputs(documents, query, **quality_options):
+    """Offline merge of saved batches, retaining alternate source evidence."""
+    rows, upstream = [], []
+    for document in documents:
+        validate_response("search", document)
+        upstream.append({"complete": document.get("upstream_complete", document.get("complete", document.get("ok", True))),
+                         "searches": document.get("searches", []), "errors": document.get("errors", []),
+                         "quality": document.get("quality", {})})
+        for item in document["results"]:
+            base = {k: v for k, v in item.items() if k != "alternates"}
+            rows.append(base)
+            alternates = item.get("alternates", [])
+            if not isinstance(alternates, list):
+                raise SearchError("结果中的 alternates 必须为列表。", "invalid_input")
+            for alternate in alternates:
+                if not isinstance(alternate, dict) or not isinstance(alternate.get("url"), str):
+                    raise SearchError("无效的重复来源记录。", "invalid_input")
+                variant = alternate.get("variant", {})
+                if not isinstance(variant, dict):
+                    raise SearchError("无效的来源版本记录。", "invalid_input")
+                evidence = {k: variant[k] for k in ("title", "snippet", "summary", "content", "date", "matched_queries") if k in variant}
+                rows.append({**base, **evidence, "url": alternate["url"]})
+    if len(rows) > 400:
+        raise SearchError("单次 merge 最多 400 条来源（含重复版本）；请缩小范围。", "invalid_input")
+    validate_response("search", {"results": rows})
+    reviewed = process_results(rows, query, **quality_options)
+    return {**envelope("search", {"query": query}, reviewed, 0), "operation": "merge",
+            "network_requests": 0, "upstream": upstream,
+            "upstream_complete": all(u["complete"] for u in upstream)}
+
+
+def read_result_file(path):
+    with Path(path).open("rb") as stream:
+        raw = stream.read(16 * 1024 * 1024 + 1)
+    if len(raw) > 16 * 1024 * 1024:
+        raise SearchError("结果文件超过 16 MiB，请缩小范围。", "invalid_input")
+    try:
+        return json.loads(raw)
+    except (ValueError, UnicodeDecodeError):
+        raise SearchError("结果文件不是有效 JSON。", "invalid_input") from None
 
 
 def setup(no_browser=False, guide_only=False):
@@ -327,13 +362,17 @@ def parser():
     search.add_argument("--ori-question")
     search.add_argument("--localization", help="可选 IP 地址；不会自动采集用户 IP")
     search.add_argument("--raw", action="store_true", help="跳过去重与筛选，返回原始 API 结果")
-    investigate = sub.add_parser("research", help="最多三次搜索：筛选、补充来源、检索冲突证据")
+    investigate = sub.add_parser("research", help="执行调用模型提供的查询；默认只执行原查询")
     investigate.add_argument("query")
     investigate.add_argument("--count", type=int, default=5)
-    investigate.add_argument("--max-searches", type=int, choices=range(1, 4), default=3)
-    for cmd in (search, investigate):
-        cmd.add_argument("--profile", choices=("auto", "generic", "biography"), default="auto")
-        cmd.add_argument("--subject", help="限定主体；简单人物简历查询可自动识别")
+    investigate.add_argument("--max-searches", type=int, choices=range(1, 9), default=8, help="本轮剩余搜索预算")
+    investigate.add_argument("--query", dest="expansions", action="append", default=[], help="模型展开的查询，可重复；按输入顺序执行")
+    combine = sub.add_parser("merge", help="离线合并多个已保存结果，不联网、不需要 Key")
+    combine.add_argument("query", help="原始研究问题")
+    combine.add_argument("files", nargs="+", help="search/research JSON 文件")
+    for cmd in (search, investigate, combine):
+        cmd.add_argument("--profile", choices=("auto", "generic", "biography"), default="generic")
+        cmd.add_argument("--subject", help="显式字面主体过滤；默认由调用模型判断相关性")
         cmd.add_argument("--alias", action="append", default=[], help="主体别名，可重复")
         cmd.add_argument("--exclude-term", action="append", default=[], help="排除含此词的结果，可重复")
     fetch = sub.add_parser("fetch", help="抓取指定 URL 的 Markdown 正文")
@@ -352,14 +391,21 @@ def main(argv=None):
         if args.command == "search":
             payload = search_payload(args.query, args.count, args.need_content, args.ori_question, args.localization)
         elif args.command == "research":
+            research_plan(args.query, args.expansions, args.max_searches)
             payload = search_payload(args.query, args.count, True)
         elif args.command == "fetch":
             payload = fetch_payload(args.url)
-        if args.command in ("search", "research"):
+        if args.command in ("search", "research", "merge"):
             for value in ([args.subject] if args.subject is not None else []) + args.alias + args.exclude_term:
                 validate_text(value, "subject/alias/exclude-term")
             quality_options = {"profile": args.profile, "subject": args.subject,
                                "aliases": args.alias, "exclude_terms": args.exclude_term}
+        if args.command == "merge":
+            if len(args.files) > 8:
+                raise SearchError("单次 merge 最多读取 8 个结果文件。", "invalid_input")
+            result = merge_outputs([read_result_file(p) for p in args.files], args.query, **quality_options)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            return 0
         key, source = load_key()
         if args.command == "status":
             result = {"ok": True, "configured": True, "credential_source": source, "search_verified": False,
@@ -368,7 +414,7 @@ def main(argv=None):
             result = doctor(key, source)
         elif args.command == "research":
             result = research(args.query, key, args.count, args.max_searches, args.timeout, args.retries,
-                              **quality_options)
+                              queries=args.expansions, **quality_options)
         else:
             response, attempts = request_api(args.command, payload, key, args.timeout, args.retries)
             if args.command == "search" and not args.raw:

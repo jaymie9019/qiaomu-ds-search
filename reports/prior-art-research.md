@@ -32,3 +32,13 @@
 keep：逐论断追溯到拥有事实的第一手来源。adapt：在三次 Search 预算内记录中性冲突查询，把未解决状态暴露给 Agent。reject：该参考要求后台代理，但本工具是轻量补充搜索，不引入后台任务；目录里大量抓站/销售名单工具与本需求无关，未采用。invent：可审计 URL/内容去重、保护相互矛盾的重复版本、意图限定的人物过滤、无真伪裁决的候选年份检测。
 
 通用原则：同一证据不能重复计票，相关性先于来源分数，冲突不能被去重掩盖。人物年份提取是可选适配器，窦唯仅为回归夹具；另测虚构音乐人、一般文档、不同参数 URL、否定句、其他人物和英文数值范围。没有声称规则具备通用语义事实核查能力。
+
+## v1.2.0 通用模型编排研究
+
+2026-10-18 查询 `agent research query expansion`、`iterative search evidence gaps`，合并 23 个候选家族。后者 skills.sh 未返回可解析候选，SkillsMP 成功；记录为 missing evidence，不反复重试或宣称目录覆盖完整。排除 find-skills、图表生成、销售名单及模型路由等不相关候选。
+
+实际阅读 [jwynia research](https://github.com/jwynia/agent-skills/blob/main/skills/general/research/methodology/research/SKILL.md)：目录安装量 376，仓库核对时 172 stars、pushed_at 为 2026-02-24。SKILL 声明 MIT，GitHub 仓库 license 元数据为空；仅借鉴方法，未复制文案/代码、未安装运行候选。
+
+keep：先界定问题、从首轮发现术语、寻找反例、综合来源。adapt：由当前调用模型动态展开，脚本仅执行明确查询；按证据缺口与有效新增信息收敛。reject：没有校准依据的数字置信度、自动排除全部已见域名、固定角色/利益方模板、Tavily/Deno 依赖、额外 answer 模型。invent：模型提供的多查询执行契约、跨轮预算边界说明、可离线合并且保留矛盾版本的证据输出。
+
+窦唯和领域示例都放入 eval/report；核心流程不依赖人物姓名、某个领域术语、日期正则或向量检索。旧人物适配器明确降为可选兼容功能。

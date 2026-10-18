@@ -1,36 +1,29 @@
-# qiaomu-ds-search 1.1.0 交付记录
+# qiaomu-ds-search 1.2.0 交付记录
 
-日期：2026-10-18。用途：以 DeepSeek 官方 Search/Fetch 补充调研，并带无 Key 用户完成安全配置。
+日期：2026-10-18。目标：任意主题由调用 Skill 的模型理解、拆解、扩词、阅读、补搜和核实；脚本执行 Search/Fetch、去重、预算预检与离线合并。源目录保持用户指定的唯一目录，Key 配置不变。
 
 ## 参考与取舍
 
-- tavily-search：短查询、按需正文、核对原始来源。
-- tavily-research：区分轻搜索和研究，保留逐论断引用；不引入其模型选择和长任务系统。
-- redfox deepseek-websearch：考察自然语言入口和错误引导；拒绝第三方代理依赖，未复制未明确授权的代码。
-- mattpocock research：逐论断回到第一手来源；不采用后台代理。新增规则的检索记录见 prior-art-research.md。
-- 原创连接：官方创建页、可见终端隐藏输入、私有配置、真实验证、继续原任务。
+- Tavily Search/Research：保留按需读原文、逐论断引用；未采用额外研究模型或长任务服务。
+- Matt Pocock research：追溯第一手来源；未采用后台代理。
+- jwynia research：问题界定、术语发现和反证检索；未采用数字置信度、固定领域模板、自动排除已见域名及 Deno/Tavily 依赖。只借鉴方法，未复制代码。
+- redfox deepseek-websearch：此前只读比较配置提示；无第三方中转依赖。
 
-来源和指标详见 [研究记录](prior-art-research.md)。
+完整候选指标、许可边界及一条目录检索失败见 prior-art-research.md。
 
-## 验证
+## 最终实现与验证
 
-- validated advantage：48 项 Python 单元测试通过；包含失败反例，覆盖参数、网络、重试、密钥配置与不泄密。
-- trigger-eval 是启发式路由冒烟检查，不是实际大模型路由准确率；19/19 通过，结果以 trigger-eval.json 为准。
-- design advantage：直接调用 Search/Fetch，没有聊天模型和额外 Python 运行依赖；提供完整 API onboarding。
-- hypothesis：可能减少补充调研与首次配置成本；尚无用户比较实验。
-- 真实 API：用户完成本机隐藏输入配置后，Search 返回 3 条官方来源，Fetch 返回 10,279 字符正文；均为一次请求成功。证据见 output-evidence.json。
-- 包结构、版本一致性与 secret scan 已通过。本地发布门禁无阻断；开发时的未提交文件与尚待远端安装验证单独记录。GitHub CI、PR、Release 和安装结果为独立外部证据，可查看仓库 Actions、PR 与 Releases；本文件不将尚未运行的外部门禁预写为成功。
+- design advantage：规划和语义判断明确交给当前模型，无额外模型 API/向量数据库；固定人物规则降为可选兼容辅助。
+- validated advantage：research 只执行明确查询，即使已经有三个来源分组也不私自停止；计划超预算或有非法查询时在联网前拒绝。62 项离线测试通过。
+- validated advantage：重复页面中不同语言/主题的差异证据保留；离线 merge 保留跨轮来源、重复版本和失败状态，不需要 Key 或网络。
+- provider-backed evidence：当前助手在人物、技术、概念、比较四类主题中先读结果再补搜，9 次 Search、6 次 Fetch；包含一次空搜索、一次 Fetch 404，未隐瞒或当作成功取得资料。详见 agent-led-regression.md 和 output-evidence.json。
+- trigger-eval 为启发式路由冒烟检查，22 项；agent_workflow_cases.json 为 7 类场景验收准则，不冒充模型准确率。
+- hypothesis：更有效的展开和收敛可能提高内容覆盖；未做通用检索质量基准、用户实验或不同模型间比较。
 
-## v1.1.0 交付
+## 兼容、预算与回滚
 
-- validated advantage：原始五条结果中的百科重复和婚恋噪声被正确处理；真实 research 三次共 15 条，处理后 9 条，并保留 1988/1989 年的未解决分歧。专项检索与两次 Fetch 的成功/不适用证据见 [回归报告](douwei-regression.md)。
-- validated advantage：48 项测试通过，包含旧代码先失败的 13 项质量回归；同 URL 的冲突证据不会因合并而消失。
-- design advantage：原始链接、筛选理由、重复对应关系、候选事实及检索过程都可审计；新增 research 不依赖外部模型。
-- hypothesis：减少用户阅读重复及跑题材料的时间；未做用户研究或跨主题质量基准。
-- 限制：规则仅负责第一轮清理；别名需显式补充，未知镜像/翻译转载仍需人工识别；自动事实提取限定中文人物年表。
+research 的 v1.1.0 自动补搜改为由调用模型传 --query；不传时执行一次。默认 generic 不过滤人物关键词，旧规则通过 --profile biography/auto 显式启用。每批 --max-searches 限制 1–8 个逻辑请求，跨批任务总量由模型累计，失败请求计数、重试另有上限。
 
-## 边界与回滚
+沿用 Search/Fetch、setup/status/doctor 与仓库外私有凭据。不新增密钥权限，不绕过登录或付费限制。使用旧版本 tag 可回滚脚本与指令；私有 Key 不随版本覆盖。
 
-没有执行登录、验证码、充值或绕过访问限制。外部正文为不可信资料，不能成为 agent 指令。配置保存在仓库外；用户可删除专用配置文件，并在 DeepSeek 平台撤销 Key。代码回滚使用已发布 tag，不覆盖旧 Release。
-
-尚未验证：Windows/Linux 的真人交互 onboarding、不同主题的检索质量、真实账户限流/余额错误（单元测试用固定夹具覆盖）。
+远端 PR/CI/Release 和干净安装由独立发布门禁检查，本报告不预写外部门禁成功。Windows/Linux 真人配置、所有主题或调用模型质量仍未验证。
