@@ -1,8 +1,8 @@
 {
-  "name": "qiaomu-ds-search",
-  "version": "1.2.0",
-  "owner": "向阳乔木",
-  "updated_at": "2026-10-18",
+  "name": "double-search",
+  "version": "1.0.0",
+  "owner": "jaymie9019",
+  "updated_at": "2026-10-19",
   "status": "active",
   "maturity_tier": "governed",
   "lifecycle_stage": "production",
@@ -23,14 +23,16 @@
     "clean-install"
   ],
   "intent": {
-    "job_to_be_done": "由调用 Skill 的模型理解任意搜索主题、展开和迭代查询，以 DeepSeek Search/Fetch 获取可核对证据",
+    "job_to_be_done": "由调用 Skill 的模型按话题在 DeepSeek（中文生态）与 Grok（海外网页与 X）之间路由，展开和迭代查询，获取可核对证据",
     "inputs": [
       "任意主题关键词或自然语言问题",
       "模型拆解后的短查询",
-      "公开网页 URL",
-      "用户在本机隐藏输入的 API Key"
+      "公开网页 URL（含微信公众号文章）",
+      "用户在本机隐藏输入的 DeepSeek API Key",
+      "用户本人完成的 grokx OAuth 登录"
     ],
     "outputs": [
+      "按话题选择的引擎及理由",
       "带来源与查询命中关系的 JSON",
       "模型组织的证据摘要",
       "计划执行与本批预算状态",
@@ -41,7 +43,7 @@
       "聊天模型调用",
       "付费墙绕过",
       "全站爬虫",
-      "代用户充值"
+      "代用户充值或登录"
     ]
   }
 }

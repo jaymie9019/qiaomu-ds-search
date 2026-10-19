@@ -1,0 +1,17 @@
+{
+  "name": "double-search",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agent-led research: DeepSeek for Chinese sources, Grok for global web and X.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "double-search": "scripts/ds_search.mjs"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

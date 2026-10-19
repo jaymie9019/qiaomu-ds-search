@@ -52,4 +52,4 @@ Fetch 后必须核对标题、主体和关键段落。HTTP 200、非空正文可
 
 围绕用户原问题给出有结构的答案，引用紧邻事实，注明检索日期和必要的未覆盖项。不要把“找到 N 条链接”当作完成，也不要为凑篇幅加入旁支信息。不同任务的篇幅和组织方式由需求决定。
 
-机制参考：[Google 重复网址指南](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)、[Python URL 解析边界](https://docs.python.org/3/library/urllib.parse.html)。脚本规则只做机械处理，判断必须回到证据。
+机制参考：[Google 重复网址指南](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)、[RFC 3986 URI 语法](https://www.rfc-editor.org/rfc/rfc3986)。脚本规则只做机械处理，判断必须回到证据。

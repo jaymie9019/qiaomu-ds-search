@@ -9,7 +9,12 @@
     "provider": [
       "DeepSeek",
       "DS",
-      "qiaomu-ds-search"
+      "double-search",
+      "Grok",
+      "X",
+      "推特",
+      "Twitter",
+      "公众号"
     ],
     "action": [
       "搜索",
@@ -47,14 +52,19 @@
     "补充搜索几个官方来源",
     "再找几个来源核实结论",
     "用 DeepSeek 搜索反例，补充调研",
-    "配置 qiaomu-ds-search API Key",
+    "配置 double-search API Key",
     "我没有 API Key，带我配置 DeepSeek 搜索",
     "Use DeepSeek search for current sources",
     "Fetch this public page with DeepSeek",
     "Supplement research with a DeepSeek search",
     "用 DeepSeek 搜索这个陌生概念，并展开相关问题补充调研",
     "用 DS 搜索比较两种方案，核实来源",
-    "用 qiaomu-ds-search 搜索这个错误的原因和官方解决办法"
+    "用 double-search 搜索这个错误的原因和官方解决办法",
+    "用 Grok 搜一下海外对这个发布的评价",
+    "看看 X 上大家怎么讨论这件事",
+    "搜一下这个公众号最近发了什么",
+    "What are people on X saying about this launch?",
+    "查一下这个产品在国内外的口碑，分别给来源"
   ],
   "should_not_trigger": [
     "不要联网，用已有材料回答",

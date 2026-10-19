@@ -1,5 +1,4 @@
-__pycache__/
-*.pyc
+node_modules/
 .DS_Store
 .env
 .env.*
@@ -7,4 +6,3 @@ credentials.json
 *.log
 .agents/
 .claude/
-node_modules/
